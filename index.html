@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OptoDuo 視光小鄰國 - 驗光國考全真闖關系統</title>
+  <!-- 掛載外部題庫抽屜 -->
+  <script src="questions.js"></script>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --gold: #f59e0b;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: #1e293b; border-bottom: 1px solid var(--border); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .logo { font-size: 1.1rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .nav-tabs { display: flex; gap: 6px; }
+    .nav-btn { background: #0f172a; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .container { max-width: 760px; margin: 0 auto; width: 100%; padding: 16px 12px; flex: 1; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); margin-bottom: 20px; }
+    .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn:active { transform: scale(0.98); }
+    .btn-secondary { background: #334155; color: #f1f5f9; }
+    .btn-danger { background: #991b1b; color: #fecaca; }
+    .btn-hint { background: #854d0e; color: #fef08a; border: 1px solid var(--gold); }
+    .grid-select { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 12px 0 16px; }
+    .select-item { border: 2px solid var(--border); padding: 10px 6px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: 600; font-size: 0.85rem; user-select: none; }
+    .select-item.active { border-color: #38bdf8; background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .timer { font-variant-numeric: tabular-nums; font-weight: 700; color: #fbbf24; font-size: 1.05rem; }
+    .hp-bar { color: #f43f5e; font-size: 1rem; letter-spacing: 2px; }
+    .q-title { font-size: 1.05rem; line-height: 1.6; font-weight: 600; margin-bottom: 16px; }
+    .tag-note { display: inline-block; background: #854d0e; color: #fef08a; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; margin-bottom: 10px; }
+    .tag-admin { display: inline-block; background: #581c87; color: #e9d5ff; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; margin-bottom: 10px; margin-left: 6px; font-weight: bold; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn { background: #0f172a; border: 1.5px solid var(--border); padding: 12px 14px; border-radius: 12px; color: var(--text); text-align: left; font-size: 0.92rem; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .option-btn.correct { background: rgba(16, 185, 129, 0.2) !important; border-color: var(--accent) !important; color: #6ee7b7 !important; font-weight: 600; }
+    .option-btn.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--danger) !important; color: #fca5a5 !important; }
+    .option-btn.hint-highlight { border-color: var(--gold) !important; background: rgba(245, 158, 11, 0.25) !important; color: #fef08a !important; font-weight: bold; }
+    
+    .feedback-box { margin-top: 16px; padding: 16px; border-radius: 12px; background: #0f172a; border-left: 4px solid var(--primary); display: none; }
+    .feedback-box.show { display: block; animation: fadeIn 0.2s ease; }
+    .explain-card { margin-top: 10px; padding: 12px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; line-height: 1.6; }
+    .explain-card .title { font-weight: 700; color: #38bdf8; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+
+    .profile-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .avatar-box { width: 58px; height: 58px; border-radius: 50%; background: #0369a1; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; border: 2px solid #38bdf8; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+    .stat-card { background: #0f172a; border: 1px solid var(--border); border-radius: 10px; padding: 12px 6px; text-align: center; }
+    .stat-val { font-size: 1.35rem; font-weight: 800; color: #38bdf8; }
+    .stat-lbl { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+    .wrong-item { background: #0f172a; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .wrong-q { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+    .wrong-ans { font-size: 0.85rem; color: #34d399; margin-bottom: 4px; }
+    .wrong-exp { font-size: 0.82rem; color: #94a3b8; line-height: 1.5; border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 6px; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo" onclick="switchTab('quiz')">
+      <span>👓 OptoDuo 視光小鄰國</span>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-btn active" id="tabQuiz" onclick="switchTab('quiz')">闖關測驗</button>
+      <button class="nav-btn" id="tabReview" onclick="switchTab('review')">錯題本 (<span id="wrongCountBadge">0</span>)</button>
+      <button class="nav-btn" id="tabProfile" onclick="switchTab('profile')">個人檔案</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="viewQuiz">
+      <div id="menuScreen" class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2 style="font-size: 1.25rem;">選擇測驗考科與年份</h2>
+          <span id="adminActiveBadge" style="display:none; font-size:0.75rem; background:#581c87; color:#f3e8ff; padding:2px 8px; border-radius:6px; font-weight:bold;">👑 管理員模式</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;" id="loadedQuestionInfo">正在檢測題庫狀態...</p>
+
+        <div style="margin-top: 16px; font-weight: 600; font-size: 0.9rem; color: #38bdf8;">1. 選擇考試年份</div>
+        <div class="grid-select" id="yearSelect">
+          <div class="select-item" onclick="selectYear('113', this)">113 年第二次</div>
+          <div class="select-item" onclick="selectYear('114', this)">114 年第二次</div>
+          <div class="select-item active" onclick="selectYear('115', this)">115 年第二次</div>
+        </div>
+
+        <div style="margin-top: 10px; font-weight: 600; font-size: 0.9rem; color: #38bdf8;">2. 選擇等別</div>
+        <div class="grid-select" id="levelSelect">
+          <div class="select-item active" onclick="selectLevel('senior', this)">高考（驗光師）</div>
+          <div class="select-item" onclick="selectLevel('junior', this)">普考（驗光生）</div>
+        </div>
+
+        <div style="font-weight: 600; font-size: 0.9rem; color: #38bdf8;">3. 選擇科目</div>
+        <div class="grid-select" id="subjectSelect"></div>
+
+        <div style="font-weight: 600; font-size: 0.9rem; color: #38bdf8;">4. 模式選擇</div>
+        <div class="grid-select" id="modeSelect">
+          <div class="select-item active" onclick="selectMode('practice', this)">精準闖關 (5題速測)</div>
+          <div class="select-item" onclick="selectMode('exam', this)">全真模擬 (計時評分)</div>
+        </div>
+
+        <button class="btn" onclick="startQuiz()">開始隨機 5 題闖關 🚀</button>
+
+        <div style="margin-top: 20px; text-align: center; border-top: 1px dashed var(--border); padding-top: 12px;">
+          <button style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; padding:6px;" onclick="promptAdminMode()">🛠️ 管理員模式（作弊金手指）</button>
+        </div>
+      </div>
+
+      <div id="quizScreen" class="card" style="display: none;">
+        <div class="status-bar">
+          <div>
+            <span style="font-weight: 700; color: #38bdf8;" id="progressText">第 1 / 5 題</span>
+          </div>
+          <div class="hp-bar" id="hpDisplay">❤️❤️❤️❤️❤️</div>
+          <div class="timer" id="timerDisplay">60:00</div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <div id="noteTag"></div>
+          <button id="adminHintBtn" class="btn btn-hint" onclick="showAdminHint()" style="display: none; width: auto; padding: 4px 10px; font-size: 0.8rem;">💡 偷看答案</button>
+        </div>
+
+        <div class="q-title" id="questionText">載入題目中...</div>
+        <div class="options" id="optionsContainer"></div>
+
+        <div class="feedback-box" id="feedbackBox">
+          <div style="font-weight: 700; margin-bottom: 4px;" id="feedbackTitle"></div>
+          <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;" id="feedbackDesc"></div>
+          
+          <div class="explain-card" id="explainSection" style="display:none;">
+            <div class="title">🔍 盲點診斷與詳解建議：</div>
+            <div id="explainContent" style="color:#cbd5e1;"></div>
+          </div>
+
+          <button class="btn" id="nextBtn" onclick="nextQuestion()" style="margin-top: 14px;">下一題 ➔</button>
+        </div>
+      </div>
+
+      <div id="resultScreen" class="card" style="display: none; text-align: center;">
+        <h2 style="font-size: 1.4rem; color: #38bdf8; margin-bottom: 6px;">測驗完成！🎉</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;">本次成績已自動更新至個人檔案</p>
+        <div style="background: #0f172a; padding: 18px; border-radius: 12px; margin-bottom: 18px; border: 1px solid var(--border);">
+          <div style="font-size: 2.6rem; font-weight: 800; color: #10b981;" id="finalScore">100 分</div>
+          <div style="margin-top: 6px; color: var(--text-muted); font-size: 0.85rem;" id="scoreSummary">答對題數結算</div>
+        </div>
+        <button class="btn" onclick="returnToMenu()">返回測驗選單</button>
+      </div>
+    </div>
+
+    <div id="viewReview" style="display: none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 1.25rem;">錯題複習本</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">闖關答錯自動收錄，特訓答對自動消除</p>
+          </div>
+          <button class="btn btn-secondary" onclick="startWrongDrill()" id="btnStartWrongDrill" style="width: auto; padding: 6px 12px; font-size: 0.85rem;">重測錯題 (5題) ⚡</button>
+        </div>
+        <div id="wrongListContainer"></div>
+      </div>
+    </div>
+
+    <div id="viewProfile" style="display: none;">
+      <div class="card">
+        <div class="profile-header">
+          <div class="avatar-box" id="avatarDisplay" onclick="changeAvatar()">👩‍⚕️</div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 1.2rem;" id="userNameDisplay">準驗光師同學</h2>
+              <span style="font-size: 0.8rem; cursor: pointer; color: #38bdf8;" onclick="editUserName()">✏️ 改名</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #fbbf24; margin-top: 4px;" id="userTitleBadge">🏅 散光調校高手</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-val" id="statTotalAnswered">0</div>
+            <div class="stat-lbl">累計作答</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="statAccuracy">0%</div>
+            <div class="stat-lbl">歷史正確率</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="statWrongCount">0</div>
+            <div class="stat-lbl">待攻克錯題</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; background:#0f172a; padding:12px; border-radius:10px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:600; font-size:0.9rem; color:#e9d5ff;">🛠️ 金手指作弊模式</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">無限愛心、答案提示燈</div>
+          </div>
+          <button class="btn btn-secondary" onclick="toggleAdminFromProfile()" id="btnAdminToggleProfile" style="width:auto; padding:6px 12px; font-size:0.8rem;">未啟動</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <button class="btn btn-danger" onclick="resetAllData()" style="padding: 10px; font-size: 0.85rem;">重設做題紀錄與錯題本</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const StorageSafe = {
+      get: function(key, fallback) {
+        try {
+          const val = localStorage.getItem(key);
+          return val ? JSON.parse(val) : fallback;
+        } catch(e) { return fallback; }
+      },
+      set: function(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+      }
+    };
+
+    let userData = StorageSafe.get('optoUserData', {
+      name: "準驗光師同學",
+      avatar: "👩‍⚕️",
+      totalAnswered: 0,
+      totalCorrect: 0,
+      wrongQuestions: [],
+      isAdmin: false
+    });
+
+    function saveUserData() {
+      StorageSafe.set('optoUserData', userData);
+      updateProfileUI();
+      updateWrongBadge();
+    }
+
+    let curYear = "115";
+    let curLevel = "senior";
+    let curSub = "refraction"; // 預設對應視光學
+    let curMode = "practice";
+    let curQuestions = [];
+    let curIndex = 0;
+    let score = 0;
+    let hp = 5;
+    let timer = null;
+    let timeLeft = 3600;
+    let isDrillMode = false;
+
+    // 科目代號對照表
+    const subjectConfigs = {
+      senior: [
+        { id: "refraction", name: "視光學" },
+        { id: "optics", name: "視覺光學" },
+        { id: "contact", name: "隱形眼鏡與配鏡" },
+        { id: "anatomy", name: "解剖與法規" },
+        { id: "lowvision", name: "低視力學" }
+      ],
+      junior: [
+        { id: "glasses_optics", name: "眼鏡光學概要" },
+        { id: "optometry_intro", name: "驗光學概要" },
+        { id: "contact_intro", name: "隱形眼鏡學概要" },
+        { id: "eye_anatomy_law", name: "眼球構造與法規概要" }
+      ]
+    };
+
+    // 精確渲染科目選項並確保 active 同步
+    function renderSubjectOptions() {
+      const list = subjectConfigs[curLevel];
+      const container = document.getElementById('subjectSelect');
+
+      if (!list.some(item => item.id === curSub)) {
+        curSub = list[0].id;
+      }
+
+      container.innerHTML = list.map(item => `
+        <div class="select-item ${item.id === curSub ? 'active' : ''}" onclick="selectSubject('${item.id}', this)">
+          ${item.name}
+        </div>
+      `).join('');
+    }
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function switchTab(tab) {
+      document.getElementById('viewQuiz').style.display = tab === 'quiz' ? 'block' : 'none';
+      document.getElementById('viewReview').style.display = tab === 'review' ? 'block' : 'none';
+      document.getElementById('viewProfile').style.display = tab === 'profile' ? 'block' : 'none';
+
+      document.getElementById('tabQuiz').classList.toggle('active', tab === 'quiz');
+      document.getElementById('tabReview').classList.toggle('active', tab === 'review');
+      document.getElementById('tabProfile').classList.toggle('active', tab === 'profile');
+
+      if (tab === 'review') renderWrongList();
+      if (tab === 'profile') updateProfileUI();
+    }
+
+    function selectYear(y, el) {
+      curYear = y;
+      document.querySelectorAll('#yearSelect .select-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function selectLevel(lvl, el) {
+      curLevel = lvl;
+      document.querySelectorAll('#levelSelect .select-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      renderSubjectOptions();
+    }
+
+    // 點擊科目時即時切換 curSub
+    function selectSubject(s, el) {
+      curSub = s;
+      document.querySelectorAll('#subjectSelect .select-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function selectMode(m, el) {
+      curMode = m;
+      document.querySelectorAll('#modeSelect .select-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function promptAdminMode() {
+      if (userData.isAdmin) {
+        if (confirm("目前管理員模式已開啟，要關閉管理員模式嗎？")) {
+          userData.isAdmin = false;
+          saveUserData();
+          alert("已恢復為普通模式！");
+        }
+        return;
+      }
+      const pwd = prompt("請輸入管理員金手指密碼（520 或 8888）：");
+      if (pwd === "520" || pwd === "8888") {
+        userData.isAdmin = true;
+        saveUserData();
+        alert("👑 管理員金手指已啟動！無限愛心與偷看答案已解鎖。");
+      } else if (pwd !== null) {
+        alert("❌ 密碼錯誤！");
+      }
+    }
+
+    function toggleAdminFromProfile() { promptAdminMode(); }
+
+    function showAdminHint() {
+      const q = curQuestions[curIndex];
+      const allBtns = document.querySelectorAll('.option-btn');
+      const primaryAns = q.ans[0];
+      allBtns.forEach((btn, idx) => {
+        if (['A', 'B', 'C', 'D'][idx] === primaryAns) {
+          btn.classList.add('hint-highlight');
+        }
+      });
+    }
+
+    // 開始測驗：精確組合抽屜 Key
+    function startQuiz() {
+      isDrillMode = false;
+      const key = `${curYear}_${curLevel}_${curSub}`;
+      let baseQuestions = [];
+
+      if (window.OptoQuestions && window.OptoQuestions[key]) {
+        baseQuestions = window.OptoQuestions[key];
+      } else {
+        const subName = (subjectConfigs[curLevel].find(s => s.id === curSub) || {}).name || curSub;
+        alert(`目前題庫抽屜尚未載入：【${curYear}年 ${curLevel==='senior'?'高考':'普考'} - ${subName}】的題目！\n請確認 questions.js 是否有貼入代號為 "${key}" 的考題。`);
+        return;
+      }
+
+      const shuffled = shuffleArray(baseQuestions);
+      curQuestions = shuffled.slice(0, Math.min(5, shuffled.length));
+      initQuizUI();
+    }
+
+    function startWrongDrill() {
+      if (userData.wrongQuestions.length === 0) {
+        alert("太棒了！目前錯題本是空的！");
+        return;
+      }
+      isDrillMode = true;
+      const shuffledWrong = shuffleArray(userData.wrongQuestions);
+      curQuestions = shuffledWrong.slice(0, Math.min(5, shuffledWrong.length));
+      switchTab('quiz');
+      initQuizUI();
+    }
+
+    function initQuizUI() {
+      curIndex = 0;
+      score = 0;
+      hp = 5;
+      timeLeft = 3600;
+
+      document.getElementById('menuScreen').style.display = 'none';
+      document.getElementById('resultScreen').style.display = 'none';
+      document.getElementById('quizScreen').style.display = 'block';
+
+      document.getElementById('adminHintBtn').style.display = userData.isAdmin ? 'inline-block' : 'none';
+
+      if (curMode === 'exam' && !isDrillMode) {
+        document.getElementById('hpDisplay').style.display = userData.isAdmin ? 'block' : 'none';
+        startTimer();
+      } else {
+        document.getElementById('hpDisplay').style.display = 'block';
+        updateHp();
+      }
+      loadQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+        document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (timeLeft <= 0) { clearInterval(timer); endQuiz(); }
+      }, 1000);
+    }
+
+    function updateHp() {
+      if (userData.isAdmin) {
+        document.getElementById('hpDisplay').innerText = '💖x∞ (神模式)';
+        return;
+      }
+      let hearts = '';
+      for (let i = 0; i < 5; i++) hearts += i < hp ? '❤️' : '🖤';
+      document.getElementById('hpDisplay').innerText = hearts;
+    }
+
+    function loadQuestion() {
+      const q = curQuestions[curIndex];
+      document.getElementById('progressText').innerText = `第 ${curIndex + 1} / ${curQuestions.length} 題`;
+      document.getElementById('questionText').innerText = q.q;
+      document.getElementById('feedbackBox').classList.remove('show');
+      document.getElementById('explainSection').style.display = 'none';
+
+      const noteTag = document.getElementById('noteTag');
+      let tagsHtml = '';
+      if (q.note && q.note.includes('更正')) {
+        tagsHtml += `<span class="tag-note">⚠️ 官方更正題</span>`;
+      }
+      if (userData.isAdmin) {
+        tagsHtml += `<span class="tag-admin">👑 無限血護體</span>`;
+      }
+      noteTag.innerHTML = tagsHtml;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.opts.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = `${letters[idx]}. ${opt}`;
+        btn.onclick = () => checkAnswer(letters[idx], btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(chosen, btnEl) {
+      const q = curQuestions[curIndex];
+      const isCorrect = q.ans.includes(chosen);
+      const allBtns = document.querySelectorAll('.option-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      userData.totalAnswered++;
+
+      const explainSec = document.getElementById('explainSection');
+      const explainContent = document.getElementById('explainContent');
+
+      if (isCorrect) {
+        btnEl.classList.add('correct');
+        score += Math.round(100 / curQuestions.length);
+        userData.totalCorrect++;
+
+        if (isDrillMode) {
+          userData.wrongQuestions = userData.wrongQuestions.filter(item => item.id !== q.id);
+        }
+        document.getElementById('feedbackTitle').innerText = '🎉 回答正確！太棒了！';
+        document.getElementById('feedbackTitle').style.color = '#10b981';
+      } else {
+        btnEl.classList.add('wrong');
+        if (!userData.isAdmin) hp--;
+        updateHp();
+
+        if (!userData.wrongQuestions.some(item => item.id === q.id)) {
+          userData.wrongQuestions.push(q);
+        }
+
+        document.getElementById('feedbackTitle').innerText = userData.isAdmin ? '❌ 回答錯誤（管理員護體不扣血）' : '❌ 答錯了！已為妳收錄至錯題本';
+        document.getElementById('feedbackTitle').style.color = '#ef4444';
+        allBtns.forEach((b, i) => {
+          if (q.ans.includes(['A','B','C','D'][i])) b.classList.add('correct');
+        });
+      }
+
+      let expText = "";
+      if (q.explain) {
+        expText = q.explain;
+      } else {
+        expText = `本題標準正解為【${q.ans.join(' 或 ')}】。請特別注意題目敘述之關鍵陷阱與光學幾何定義。`;
+      }
+      explainContent.innerHTML = expText;
+      explainSec.style.display = 'block';
+
+      saveUserData();
+      document.getElementById('feedbackDesc').innerText = q.note || `官方公告答案：${q.ans.join(' 或 ')}`;
+      document.getElementById('feedbackBox').classList.add('show');
+    }
+
+    function nextQuestion() {
+      curIndex++;
+      if (curIndex < curQuestions.length && (hp > 0 || userData.isAdmin)) {
+        loadQuestion();
+      } else {
+        endQuiz();
+      }
+    }
+
+    function endQuiz() {
+      clearInterval(timer);
+      document.getElementById('quizScreen').style.display = 'none';
+      document.getElementById('resultScreen').style.display = 'block';
+      document.getElementById('finalScore').innerText = `${score} 分`;
+      document.getElementById('scoreSummary').innerText = isDrillMode ? '特訓完成！已消滅答對錯題！' : `5 題測驗結束！可前往錯題本查看詳細解析與弱點。`;
+    }
+
+    function returnToMenu() {
+      document.getElementById('resultScreen').style.display = 'none';
+      document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    function renderWrongList() {
+      const container = document.getElementById('wrongListContainer');
+      const list = userData.wrongQuestions;
+      updateWrongBadge();
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;">🏆</div>
+            <div>目前錯題本沒有任何錯題！真棒！</div>
+          </div>
+        `;
+        document.getElementById('btnStartWrongDrill').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('btnStartWrongDrill').style.display = 'inline-block';
+      container.innerHTML = list.map((item, idx) => `
+        <div class="wrong-item">
+          <div class="wrong-q">${idx + 1}. ${item.q}</div>
+          <div class="wrong-ans">正解：${item.ans.join(' 或 ')}</div>
+          <div class="wrong-exp">💡 考點解析：${item.explain || item.note || '熟記考題定義與觀念即可攻克！'}</div>
+        </div>
+      `).join('');
+    }
+
+    function updateWrongBadge() {
+      document.getElementById('wrongCountBadge').innerText = userData.wrongQuestions.length;
+    }
+
+    function updateProfileUI() {
+      document.getElementById('userNameDisplay').innerText = userData.name;
+      document.getElementById('avatarDisplay').innerText = userData.avatar;
+      document.getElementById('statTotalAnswered').innerText = userData.totalAnswered;
+      document.getElementById('statWrongCount').innerText = userData.wrongQuestions.length;
+
+      const acc = userData.totalAnswered > 0 ? Math.round((userData.totalCorrect / userData.totalAnswered) * 100) : 0;
+      document.getElementById('statAccuracy').innerText = `${acc}%`;
+
+      let title = "🌱 視光新手學徒";
+      if (userData.totalAnswered >= 10) title = "🔍 綜合驗光小能手";
+      if (userData.totalAnswered >= 30) title = "🏅 散光調校高手";
+      if (userData.totalAnswered >= 60) title = "🔥 國考合格驗光師戰神";
+      document.getElementById('userTitleBadge').innerText = title;
+
+      const adminBadge = document.getElementById('adminActiveBadge');
+      const adminBtnProfile = document.getElementById('btnAdminToggleProfile');
+      if (userData.isAdmin) {
+        adminBadge.style.display = 'inline-block';
+        adminBtnProfile.innerText = '已啟動 (點擊切換)';
+        adminBtnProfile.style.color = '#a855f7';
+      } else {
+        adminBadge.style.display = 'none';
+        adminBtnProfile.innerText = '未啟動 (輸入密碼)';
+        adminBtnProfile.style.color = 'var(--text-muted)';
+      }
+    }
+
+    function editUserName() {
+      const newName = prompt("請輸入妳的暱稱：", userData.name);
+      if (newName && newName.trim() !== "") {
+        userData.name = newName.trim();
+        saveUserData();
+      }
+    }
+
+    function changeAvatar() {
+      const avatars = ["👩‍⚕️", "🧑‍⚕️", "👓", "🌸", "✨", "🐱", "🐰"];
+      userData.avatar = avatars[(avatars.indexOf(userData.avatar) + 1) % avatars.length];
+      saveUserData();
+    }
+
+    function resetAllData() {
+      if (confirm("確定要重設所有刷題統計與清空錯題本嗎？")) {
+        userData.totalAnswered = 0;
+        userData.totalCorrect = 0;
+        userData.wrongQuestions = [];
+        userData.isAdmin = false;
+        saveUserData();
+        renderWrongList();
+        alert("已重置所有紀錄！");
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSubjectOptions();
+      updateProfileUI();
+      updateWrongBadge();
+
+      const infoEl = document.getElementById('loadedQuestionInfo');
+      if (window.OptoQuestions) {
+        infoEl.innerText = "✅ 外部題庫抽屜連線成功！每次隨機抽測 5 題。";
+        infoEl.style.color = "#34d399";
+      } else {
+        infoEl.innerText = "⚠️ 尚未讀取到 questions.js，請將題庫檔案放在同資料夾。";
+        infoEl.style.color = "#f87171";
+      }
+    });
+  </script>
+</body>
+</html>
