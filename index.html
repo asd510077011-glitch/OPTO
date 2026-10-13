@@ -23,9 +23,13 @@
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
     header { background: #1e293b; border-bottom: 1px solid var(--border); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .logo { font-size: 1.1rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px; cursor: pointer; }
-    .nav-tabs { display: flex; gap: 6px; }
+    .nav-tabs { display: flex; gap: 6px; align-items: center; }
     .nav-btn { background: #0f172a; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .nav-btn-calc { background: #4338ca; color: #e0e7ff; border-color: #6366f1; }
+    .nav-btn-calc:hover { background: #4f46e5; }
+    .nav-btn-search { background: #065f46; color: #a7f3d0; border-color: #10b981; }
+    .nav-btn-search.active { background: #10b981; color: #fff; border-color: #10b981; }
     .container { max-width: 760px; margin: 0 auto; width: 100%; padding: 16px 12px; flex: 1; }
     .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); margin-bottom: 20px; }
     .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
@@ -33,6 +37,7 @@
     .btn-secondary { background: #334155; color: #f1f5f9; }
     .btn-danger { background: #991b1b; color: #fecaca; }
     .btn-hint { background: #854d0e; color: #fef08a; border: 1px solid var(--gold); }
+    .btn-calc-mini { background: #312e81; color: #c7d2fe; border: 1px solid #6366f1; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
     .grid-select { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 12px 0 16px; }
     .select-item { border: 2px solid var(--border); padding: 10px 6px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: 600; font-size: 0.85rem; user-select: none; }
     .select-item.active { border-color: #38bdf8; background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
@@ -44,6 +49,7 @@
     .tag-admin { display: inline-block; background: #581c87; color: #e9d5ff; font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; margin-bottom: 10px; margin-left: 6px; font-weight: bold; }
     .options { display: flex; flex-direction: column; gap: 10px; }
     .option-btn { background: #0f172a; border: 1.5px solid var(--border); padding: 12px 14px; border-radius: 12px; color: var(--text); text-align: left; font-size: 0.92rem; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .option-btn.selected { border-color: #38bdf8 !important; background: rgba(56, 189, 248, 0.18) !important; color: #38bdf8 !important; font-weight: 700; }
     .option-btn.correct { background: rgba(16, 185, 129, 0.2) !important; border-color: var(--accent) !important; color: #6ee7b7 !important; font-weight: 600; }
     .option-btn.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--danger) !important; color: #fca5a5 !important; }
     .option-btn.hint-highlight { border-color: var(--gold) !important; background: rgba(245, 158, 11, 0.25) !important; color: #fef08a !important; font-weight: bold; }
@@ -52,6 +58,13 @@
     .feedback-box.show { display: block; animation: fadeIn 0.2s ease; }
     .explain-card { margin-top: 10px; padding: 12px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; line-height: 1.6; }
     .explain-card .title { font-weight: 700; color: #38bdf8; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+
+    /* 答題卡題號矩陣 */
+    .sheet-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin: 12px 0; }
+    .sheet-btn { padding: 8px 0; border-radius: 6px; font-size: 0.78rem; font-weight: 700; border: 1px solid var(--border); background: #0f172a; color: var(--text-muted); cursor: pointer; text-align: center; }
+    .sheet-btn.current { border-color: #38bdf8; color: #38bdf8; }
+    .sheet-btn.answered { background: #0284c7; color: #fff; border-color: #0284c7; }
+    .sheet-btn.marked { border-color: #f59e0b; color: #f59e0b; }
 
     .profile-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
     .avatar-box { width: 58px; height: 58px; border-radius: 50%; background: #0369a1; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; border: 2px solid #38bdf8; }
@@ -63,7 +76,29 @@
     .wrong-q { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
     .wrong-ans { font-size: 0.85rem; color: #34d399; margin-bottom: 4px; }
     .wrong-exp { font-size: 0.82rem; color: #94a3b8; line-height: 1.5; border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 6px; }
+
+    /* 題庫搜尋樣式 */
+    .search-input-box { width: 100%; padding: 12px 16px; background: #0f172a; border: 2px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; margin-bottom: 12px; }
+    .search-input-box:focus { outline: none; border-color: #10b981; }
+    .search-meta-tag { display: inline-block; background: #064e3b; color: #6ee7b7; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; font-weight: 600; }
+    .search-highlight { background: rgba(245, 158, 11, 0.3); color: #fef08a; padding: 0 2px; border-radius: 3px; font-weight: bold; }
+
+    /* 小算盤樣式 (深色風格) */
+    .calc-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; padding: 14px; }
+    .calc-box { background: #1e293b; border: 1px solid var(--border); width: 100%; max-width: 520px; max-height: 90vh; border-radius: 16px; box-shadow: 0 20px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; animation: popIn 0.2s ease; }
+    .calc-header { background: #0f172a; border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .calc-tabs { display: flex; background: #0b1120; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .calc-tab { flex: 1; padding: 10px 8px; background: transparent; border: none; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .calc-tab.active { color: #38bdf8; border-bottom-color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+    .calc-body { padding: 16px; overflow-y: auto; font-size: 0.9rem; color: var(--text); }
+    .calc-input { width: 100%; padding: 9px 12px; background: #0f172a; border: 1.5px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem; margin-top: 4px; box-sizing: border-box; }
+    .calc-input:focus { outline: none; border-color: #38bdf8; }
+    .calc-result { margin-top: 12px; padding: 14px; background: #0f172a; border-radius: 10px; border: 1px solid #334155; font-size: 0.88rem; line-height: 1.7; }
+    .calc-step { background: rgba(255,255,255,0.03); border-left: 3px solid #38bdf8; padding: 8px 12px; margin-top: 8px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; color: #cbd5e1; }
+    .calc-result-val { color: #34d399; font-weight: 800; font-size: 1.15rem; }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
   </style>
 </head>
 <body>
@@ -73,14 +108,18 @@
       <span>👓 OptoDuo 視光小鄰國</span>
     </div>
     <div class="nav-tabs">
-      <button class="nav-btn active" id="tabQuiz" onclick="switchTab('quiz')">闖關測驗</button>
-      <button class="nav-btn" id="tabReview" onclick="switchTab('review')">錯題本 (<span id="wrongCountBadge">0</span>)</button>
-      <button class="nav-btn" id="tabProfile" onclick="switchTab('profile')">個人檔案</button>
+      <button class="nav-btn nav-btn-calc" onclick="openOptoCalc()">🧮 算盤</button>
+      <button class="nav-btn nav-btn-search" id="tabSearch" onclick="switchTab('search')">🔍 題庫搜尋</button>
+      <button class="nav-btn active" id="tabQuiz" onclick="switchTab('quiz')">測驗</button>
+      <button class="nav-btn" id="tabReview" onclick="switchTab('review')">錯題 (<span id="wrongCountBadge">0</span>)</button>
+      <button class="nav-btn" id="tabProfile" onclick="switchTab('profile')">檔案</button>
     </div>
   </header>
 
   <div class="container">
+    <!-- 視圖 1: 測驗主畫面 -->
     <div id="viewQuiz">
+      <!-- 測驗設定選單 -->
       <div id="menuScreen" class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h2 style="font-size: 1.25rem;">選擇測驗考科與年份</h2>
@@ -107,33 +146,49 @@
         <div style="font-weight: 600; font-size: 0.9rem; color: #38bdf8;">4. 模式選擇</div>
         <div class="grid-select" id="modeSelect">
           <div class="select-item active" onclick="selectMode('practice', this)">精準闖關 (5題速測)</div>
-          <div class="select-item" onclick="selectMode('exam', this)">全真模擬 (計時評分)</div>
+          <div class="select-item" onclick="selectMode('exam', this)">全真模擬 (50題真題計時)</div>
         </div>
 
-        <button class="btn" onclick="startQuiz()">開始隨機 5 題闖關 🚀</button>
+        <button class="btn" id="btnStartQuiz" onclick="startQuiz()">開始隨機 5 題闖關 🚀</button>
 
         <div style="margin-top: 20px; text-align: center; border-top: 1px dashed var(--border); padding-top: 12px;">
           <button style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; padding:6px;" onclick="promptAdminMode()">🛠️ 管理員模式（作弊金手指）</button>
         </div>
       </div>
 
+      <!-- 答題進行畫面 -->
       <div id="quizScreen" class="card" style="display: none;">
         <div class="status-bar">
           <div>
             <span style="font-weight: 700; color: #38bdf8;" id="progressText">第 1 / 5 題</span>
           </div>
           <div class="hp-bar" id="hpDisplay">❤️❤️❤️❤️❤️</div>
-          <div class="timer" id="timerDisplay">60:00</div>
+          <div class="timer" id="timerDisplay" style="display:none;">60:00</div>
+          <button class="btn btn-secondary" id="btnSubmitExam" onclick="confirmSubmitExam()" style="display:none; width:auto; padding:4px 10px; font-size:0.8rem; background:#b91c1c;">提早交卷 📤</button>
         </div>
 
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
           <div id="noteTag"></div>
-          <button id="adminHintBtn" class="btn btn-hint" onclick="showAdminHint()" style="display: none; width: auto; padding: 4px 10px; font-size: 0.8rem;">💡 偷看答案</button>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-calc-mini" id="btnToggleSheet" onclick="toggleAnswerSheet()" style="display:none; background:#0284c7; color:#fff;">📑 答題卡</button>
+            <button class="btn-calc-mini" onclick="openOptoCalc()">🧮 算盤</button>
+            <button id="adminHintBtn" class="btn btn-hint" onclick="showAdminHint()" style="display: none; width: auto; padding: 4px 10px; font-size: 0.8rem;">💡 偷看答案</button>
+          </div>
+        </div>
+
+        <!-- 全真模擬考專用：答題卡浮動展開區塊 -->
+        <div id="sheetContainer" style="display:none; background:#0f172a; padding:12px; border-radius:10px; margin-bottom:14px; border:1px solid var(--border);">
+          <div style="font-size:0.8rem; color:var(--text-muted); display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span>點擊題號快速跳題：</span>
+            <span>藍底:已答 | 框線:未答</span>
+          </div>
+          <div class="sheet-grid" id="sheetGrid"></div>
         </div>
 
         <div class="q-title" id="questionText">載入題目中...</div>
         <div class="options" id="optionsContainer"></div>
 
+        <!-- 練習模式專用：即時反饋區 -->
         <div class="feedback-box" id="feedbackBox">
           <div style="font-weight: 700; margin-bottom: 4px;" id="feedbackTitle"></div>
           <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;" id="feedbackDesc"></div>
@@ -145,19 +200,56 @@
 
           <button class="btn" id="nextBtn" onclick="nextQuestion()" style="margin-top: 14px;">下一題 ➔</button>
         </div>
+
+        <!-- 全真模擬考專用：翻頁按鈕 -->
+        <div id="examNavBox" style="display:none; margin-top:18px; display:flex; gap:10px;">
+          <button class="btn btn-secondary" onclick="prevQuestion()" id="btnPrevExam" style="flex:1;">⬅️ 上一題</button>
+          <button class="btn" onclick="nextExamQuestion()" id="btnNextExam" style="flex:1;">下一題 ➡️</button>
+        </div>
       </div>
 
+      <!-- 成績結算畫面 -->
       <div id="resultScreen" class="card" style="display: none; text-align: center;">
-        <h2 style="font-size: 1.4rem; color: #38bdf8; margin-bottom: 6px;">測驗完成！🎉</h2>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;">本次成績已自動更新至個人檔案</p>
+        <h2 style="font-size: 1.4rem; color: #38bdf8; margin-bottom: 6px;" id="resultTitle">測驗完成！🎉</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;" id="resultSubtitle">本次成績已自動更新至個人檔案</p>
         <div style="background: #0f172a; padding: 18px; border-radius: 12px; margin-bottom: 18px; border: 1px solid var(--border);">
           <div style="font-size: 2.6rem; font-weight: 800; color: #10b981;" id="finalScore">100 分</div>
           <div style="margin-top: 6px; color: var(--text-muted); font-size: 0.85rem;" id="scoreSummary">答對題數結算</div>
         </div>
+
+        <!-- 全真模擬考錯題清單檢討 -->
+        <div id="examReviewContainer" style="display:none; text-align:left; margin-bottom:18px;">
+          <h3 style="font-size:1rem; margin-bottom:10px; color:#38bdf8;">📋 本次模擬考檢討清單：</h3>
+          <div id="examReviewList"></div>
+        </div>
+
         <button class="btn" onclick="returnToMenu()">返回測驗選單</button>
       </div>
     </div>
 
+    <!-- 視圖 2: 題庫關鍵字速查辭典 (全新加入！) -->
+    <div id="viewSearch" style="display: none;">
+      <div class="card">
+        <h2 style="font-size: 1.25rem; margin-bottom: 4px;">🔍 題庫全文速查辭典</h2>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">在 1,350 題全歷屆真題中檢索考點、名詞或法規條文</p>
+        
+        <input type="text" class="search-input-box" id="globalSearchInput" placeholder="輸入關鍵字 (如: Prentice, JCC, 視交叉, 瞳孔, 12條)..." oninput="performGlobalSearch()">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="font-size:0.85rem; color:#38bdf8; font-weight:600;" id="searchStatsText">請輸入關鍵字開始搜尋</div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-calc-mini" onclick="quickFillSearch('Prentice')">Prentice</button>
+            <button class="btn-calc-mini" onclick="quickFillSearch('JCC')">JCC</button>
+            <button class="btn-calc-mini" onclick="quickFillSearch('散光')">散光</button>
+            <button class="btn-calc-mini" onclick="quickFillSearch('法規')">法規</button>
+          </div>
+        </div>
+
+        <div id="searchResultsContainer"></div>
+      </div>
+    </div>
+
+    <!-- 視圖 3: 錯題本檢視頁面 -->
     <div id="viewReview" style="display: none;">
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -171,6 +263,7 @@
       </div>
     </div>
 
+    <!-- 視圖 4: 個人檔案與統計頁面 -->
     <div id="viewProfile" style="display: none;">
       <div class="card">
         <div class="profile-header">
@@ -214,6 +307,111 @@
     </div>
   </div>
 
+  <!-- 光學計算小算盤彈窗 (Modal) -->
+  <div id="optoCalcModal" class="calc-modal">
+    <div class="calc-box">
+      <div class="calc-header">
+        <span style="font-weight: 700; font-size: 1rem; color: #38bdf8;">🧮 光學計算小算盤 (含運算詳解)</span>
+        <button onclick="closeOptoCalc()" style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer; line-height:1;">&times;</button>
+      </div>
+
+      <div class="calc-tabs">
+        <button class="calc-tab active" onclick="switchCalcTab('tabCombo', this)">透鏡組合與焦距</button>
+        <button class="calc-tab" onclick="switchCalcTab('tabVD', this)">頂點距離 (VD)</button>
+        <button class="calc-tab" onclick="switchCalcTab('tabPrentice', this)">Prentice 稜鏡</button>
+        <button class="calc-tab" onclick="switchCalcTab('tabCyl', this)">正負柱轉換</button>
+        <button class="calc-tab" onclick="switchCalcTab('tabSE', this)">等效球面 (SE)</button>
+      </div>
+
+      <div class="calc-body">
+        <!-- 0. 透鏡組合與焦距換算 -->
+        <div id="tabCombo" class="calc-panel">
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">公式：$F_{總} = F_1 + F_2$，焦距 $f = 1 / F$ (公尺轉公分 &times; 100)</p>
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <div style="flex: 1;">
+              <label style="font-size: 0.82rem; font-weight: 600;">第一透鏡 F1 (D)：</label>
+              <input type="number" step="0.25" id="combo_f1" placeholder="例如: +4.00" class="calc-input">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 0.82rem; font-weight: 600;">第二透鏡 F2 (D，可填0)：</label>
+              <input type="number" step="0.25" id="combo_f2" placeholder="例如: -2.00" class="calc-input">
+            </div>
+          </div>
+          <button class="btn" onclick="calcCombo()" style="padding: 10px;">計算組合屈光度與焦距</button>
+          <div id="combo_result" class="calc-result" style="display: none;"></div>
+        </div>
+
+        <!-- 1. 頂點距離 -->
+        <div id="tabVD" class="calc-panel" style="display: none;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">公式：$F_c = \frac{F}{1 - d \times F}$，d 以公尺 (m) 計算</p>
+          <div style="margin-bottom: 10px;">
+            <label style="font-size: 0.85rem; font-weight: 600;">眼鏡端度數 (D，負度數請帶負號)：</label>
+            <input type="number" step="0.25" id="vd_power" placeholder="例如: -6.00 或 +5.00" class="calc-input">
+          </div>
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 0.85rem; font-weight: 600;">頂點距離 VD (毫米 mm)：</label>
+            <input type="number" step="1" id="vd_dist" value="12" class="calc-input">
+          </div>
+          <button class="btn" onclick="calcVD()" style="padding: 10px;">換算隱形眼鏡度數 (VD = 0)</button>
+          <div id="vd_result" class="calc-result" style="display: none;"></div>
+        </div>
+
+        <!-- 2. Prentice 稜鏡 -->
+        <div id="tabPrentice" class="calc-panel" style="display: none;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">公式：$P(\Delta) = c(\text{cm}) \times F(\text{D})$，偏心 $c(\text{cm}) = \text{mm} / 10$</p>
+          <div style="margin-bottom: 10px;">
+            <label style="font-size: 0.85rem; font-weight: 600;">鏡片屈光度 F (D)：</label>
+            <input type="number" step="0.25" id="pr_power" placeholder="例如: -4.00" class="calc-input">
+          </div>
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 0.85rem; font-weight: 600;">偏心量 c (毫米 mm)：</label>
+            <input type="number" step="0.5" id="pr_decent" placeholder="例如: 3 mm" class="calc-input">
+          </div>
+          <button class="btn" onclick="calcPrentice()" style="padding: 10px;">計算誘發稜鏡度</button>
+          <div id="pr_result" class="calc-result" style="display: none;"></div>
+        </div>
+
+        <!-- 3. 正負柱轉換 -->
+        <div id="tabCyl" class="calc-panel" style="display: none;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">三步驟：新球=原球+原柱，柱變號，軸向垂直轉 90°</p>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <div style="flex: 1;">
+              <label style="font-size: 0.8rem; font-weight: 600;">球面 (Sph)</label>
+              <input type="number" step="0.25" id="cyl_sph" placeholder="-2.00" class="calc-input">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 0.8rem; font-weight: 600;">柱面 (Cyl)</label>
+              <input type="number" step="0.25" id="cyl_cyl" placeholder="-1.50" class="calc-input">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 0.8rem; font-weight: 600;">軸度 (Axis)</label>
+              <input type="number" step="1" id="cyl_axis" placeholder="180" class="calc-input">
+            </div>
+          </div>
+          <button class="btn" onclick="calcCylForm()" style="padding: 10px;">轉換處方形式</button>
+          <div id="cyl_result" class="calc-result" style="display: none;"></div>
+        </div>
+
+        <!-- 4. 等效球面 (SE) -->
+        <div id="tabSE" class="calc-panel" style="display: none;">
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">公式：$\text{SE} = \text{Sph} + (\text{Cyl} / 2)$</p>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <div style="flex: 1;">
+              <label style="font-size: 0.85rem; font-weight: 600;">球面度數 (Sph)：</label>
+              <input type="number" step="0.25" id="se_sph" placeholder="-4.00" class="calc-input">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 0.85rem; font-weight: 600;">散光度數 (Cyl)：</label>
+              <input type="number" step="0.25" id="se_cyl" placeholder="-1.50" class="calc-input">
+            </div>
+          </div>
+          <button class="btn" onclick="calcSE()" style="padding: 10px;">計算等效球面度</button>
+          <div id="se_result" class="calc-result" style="display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const StorageSafe = {
       get: function(key, fallback) {
@@ -244,17 +442,17 @@
 
     let curYear = "115";
     let curLevel = "senior";
-    let curSub = "refraction"; // 預設對應視光學
+    let curSub = "refraction";
     let curMode = "practice";
     let curQuestions = [];
     let curIndex = 0;
     let score = 0;
     let hp = 5;
     let timer = null;
-    let timeLeft = 3600;
+    let timeLeft = 3600; // 60分鐘
     let isDrillMode = false;
+    let userAnswers = {};
 
-    // 科目代號對照表
     const subjectConfigs = {
       senior: [
         { id: "refraction", name: "視光學" },
@@ -271,7 +469,6 @@
       ]
     };
 
-    // 精確渲染科目選項並確保 active 同步
     function renderSubjectOptions() {
       const list = subjectConfigs[curLevel];
       const container = document.getElementById('subjectSelect');
@@ -298,15 +495,22 @@
 
     function switchTab(tab) {
       document.getElementById('viewQuiz').style.display = tab === 'quiz' ? 'block' : 'none';
+      document.getElementById('viewSearch').style.display = tab === 'search' ? 'block' : 'none';
       document.getElementById('viewReview').style.display = tab === 'review' ? 'block' : 'none';
       document.getElementById('viewProfile').style.display = tab === 'profile' ? 'block' : 'none';
 
       document.getElementById('tabQuiz').classList.toggle('active', tab === 'quiz');
+      document.getElementById('tabSearch').classList.toggle('active', tab === 'search');
       document.getElementById('tabReview').classList.toggle('active', tab === 'review');
       document.getElementById('tabProfile').classList.toggle('active', tab === 'profile');
 
       if (tab === 'review') renderWrongList();
       if (tab === 'profile') updateProfileUI();
+      if (tab === 'search') {
+        const input = document.getElementById('globalSearchInput');
+        input.focus();
+        if (input.value.trim() !== '') performGlobalSearch();
+      }
     }
 
     function selectYear(y, el) {
@@ -322,7 +526,6 @@
       renderSubjectOptions();
     }
 
-    // 點擊科目時即時切換 curSub
     function selectSubject(s, el) {
       curSub = s;
       document.querySelectorAll('#subjectSelect .select-item').forEach(i => i.classList.remove('active'));
@@ -333,6 +536,13 @@
       curMode = m;
       document.querySelectorAll('#modeSelect .select-item').forEach(i => i.classList.remove('active'));
       el.classList.add('active');
+
+      const btn = document.getElementById('btnStartQuiz');
+      if (m === 'exam') {
+        btn.innerText = "開始 50 題全真模擬考 (計時 60 分鐘) ⏱️";
+      } else {
+        btn.innerText = "開始隨機 5 題闖關 🚀";
+      }
     }
 
     function promptAdminMode() {
@@ -367,7 +577,6 @@
       });
     }
 
-    // 開始測驗：精確組合抽屜 Key
     function startQuiz() {
       isDrillMode = false;
       const key = `${curYear}_${curLevel}_${curSub}`;
@@ -381,8 +590,13 @@
         return;
       }
 
-      const shuffled = shuffleArray(baseQuestions);
-      curQuestions = shuffled.slice(0, Math.min(5, shuffled.length));
+      if (curMode === 'exam') {
+        curQuestions = [...baseQuestions];
+      } else {
+        const shuffled = shuffleArray(baseQuestions);
+        curQuestions = shuffled.slice(0, Math.min(5, shuffled.length));
+      }
+
       initQuizUI();
     }
 
@@ -392,6 +606,7 @@
         return;
       }
       isDrillMode = true;
+      curMode = 'practice';
       const shuffledWrong = shuffleArray(userData.wrongQuestions);
       curQuestions = shuffledWrong.slice(0, Math.min(5, shuffledWrong.length));
       switchTab('quiz');
@@ -402,7 +617,8 @@
       curIndex = 0;
       score = 0;
       hp = 5;
-      timeLeft = 3600;
+      userAnswers = {};
+      clearInterval(timer);
 
       document.getElementById('menuScreen').style.display = 'none';
       document.getElementById('resultScreen').style.display = 'none';
@@ -411,24 +627,53 @@
       document.getElementById('adminHintBtn').style.display = userData.isAdmin ? 'inline-block' : 'none';
 
       if (curMode === 'exam' && !isDrillMode) {
-        document.getElementById('hpDisplay').style.display = userData.isAdmin ? 'block' : 'none';
+        document.getElementById('hpDisplay').style.display = 'none';
+        document.getElementById('timerDisplay').style.display = 'inline-block';
+        document.getElementById('btnSubmitExam').style.display = 'inline-block';
+        document.getElementById('btnToggleSheet').style.display = 'inline-block';
+        document.getElementById('examNavBox').style.display = 'flex';
+        document.getElementById('feedbackBox').style.display = 'none';
+
+        timeLeft = 3600;
+        renderAnswerSheet();
         startTimer();
       } else {
         document.getElementById('hpDisplay').style.display = 'block';
+        document.getElementById('timerDisplay').style.display = 'none';
+        document.getElementById('btnSubmitExam').style.display = 'none';
+        document.getElementById('btnToggleSheet').style.display = 'none';
+        document.getElementById('sheetContainer').style.display = 'none';
+        document.getElementById('examNavBox').style.display = 'none';
         updateHp();
       }
+
       loadQuestion();
     }
 
     function startTimer() {
       clearInterval(timer);
+      updateTimerDisplay();
       timer = setInterval(() => {
         timeLeft--;
-        let m = Math.floor(timeLeft / 60);
-        let s = timeLeft % 60;
-        document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        if (timeLeft <= 0) { clearInterval(timer); endQuiz(); }
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          alert("⏰ 時間到！系統將自動交卷！");
+          submitExam();
+        }
       }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      let m = Math.floor(timeLeft / 60);
+      let s = timeLeft % 60;
+      const el = document.getElementById('timerDisplay');
+      el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      if (timeLeft <= 300) {
+        el.style.color = '#ef4444';
+      } else {
+        el.style.color = '#fbbf24';
+      }
     }
 
     function updateHp() {
@@ -441,12 +686,39 @@
       document.getElementById('hpDisplay').innerText = hearts;
     }
 
+    function toggleAnswerSheet() {
+      const sheet = document.getElementById('sheetContainer');
+      sheet.style.display = sheet.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function renderAnswerSheet() {
+      const grid = document.getElementById('sheetGrid');
+      grid.innerHTML = curQuestions.map((_, idx) => `
+        <div class="sheet-btn ${idx === curIndex ? 'current' : ''} ${userAnswers[idx] ? 'answered' : ''}" 
+             id="sheetBtn_${idx}" onclick="jumpToQuestion(${idx})">
+          ${idx + 1}
+        </div>
+      `).join('');
+    }
+
+    function updateSheetButtons() {
+      curQuestions.forEach((_, idx) => {
+        const btn = document.getElementById(`sheetBtn_${idx}`);
+        if (btn) {
+          btn.className = `sheet-btn ${idx === curIndex ? 'current' : ''} ${userAnswers[idx] ? 'answered' : ''}`;
+        }
+      });
+    }
+
+    function jumpToQuestion(idx) {
+      curIndex = idx;
+      loadQuestion();
+    }
+
     function loadQuestion() {
       const q = curQuestions[curIndex];
       document.getElementById('progressText').innerText = `第 ${curIndex + 1} / ${curQuestions.length} 題`;
       document.getElementById('questionText').innerText = q.q;
-      document.getElementById('feedbackBox').classList.remove('show');
-      document.getElementById('explainSection').style.display = 'none';
 
       const noteTag = document.getElementById('noteTag');
       let tagsHtml = '';
@@ -462,13 +734,126 @@
       container.innerHTML = '';
       const letters = ['A', 'B', 'C', 'D'];
 
-      q.opts.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.innerText = `${letters[idx]}. ${opt}`;
-        btn.onclick = () => checkAnswer(letters[idx], btn);
-        container.appendChild(btn);
+      if (curMode === 'exam' && !isDrillMode) {
+        document.getElementById('feedbackBox').classList.remove('show');
+        document.getElementById('feedbackBox').style.display = 'none';
+
+        q.opts.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          if (userAnswers[curIndex] === letters[idx]) {
+            btn.classList.add('selected');
+          }
+          btn.innerText = `${letters[idx]}. ${opt}`;
+          btn.onclick = () => selectExamAnswer(letters[idx]);
+          container.appendChild(btn);
+        });
+
+        document.getElementById('btnPrevExam').disabled = curIndex === 0;
+        document.getElementById('btnNextExam').innerText = (curIndex === curQuestions.length - 1) ? '交卷結算 🏁' : '下一題 ➡️';
+        updateSheetButtons();
+
+      } else {
+        document.getElementById('feedbackBox').classList.remove('show');
+        document.getElementById('explainSection').style.display = 'none';
+
+        q.opts.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.innerText = `${letters[idx]}. ${opt}`;
+          btn.onclick = () => checkAnswer(letters[idx], btn);
+          container.appendChild(btn);
+        });
+      }
+    }
+
+    function selectExamAnswer(chosen) {
+      userAnswers[curIndex] = chosen;
+      loadQuestion();
+    }
+
+    function prevQuestion() {
+      if (curIndex > 0) {
+        curIndex--;
+        loadQuestion();
+      }
+    }
+
+    function nextExamQuestion() {
+      if (curIndex < curQuestions.length - 1) {
+        curIndex++;
+        loadQuestion();
+      } else {
+        confirmSubmitExam();
+      }
+    }
+
+    function confirmSubmitExam() {
+      const answeredCount = Object.keys(userAnswers).length;
+      const totalCount = curQuestions.length;
+      const unAnswered = totalCount - answeredCount;
+
+      let msg = `總題數：${totalCount} 題\n已作答：${answeredCount} 題\n未作答：${unAnswered} 題\n\n確定現在要提交試卷嗎？`;
+      if (unAnswered > 0) {
+        msg = `⚠️ 尚有 ${unAnswered} 題未作答！\n` + msg;
+      }
+      if (confirm(msg)) {
+        submitExam();
+      }
+    }
+
+    function submitExam() {
+      clearInterval(timer);
+      let correctCount = 0;
+      let wrongList = [];
+
+      curQuestions.forEach((q, idx) => {
+        const userChoice = userAnswers[idx];
+        const isCorrect = userChoice && q.ans.includes(userChoice);
+
+        userData.totalAnswered++;
+        if (isCorrect) {
+          correctCount++;
+          userData.totalCorrect++;
+        } else {
+          wrongList.push({
+            qIndex: idx + 1,
+            question: q,
+            chosen: userChoice || '未作答'
+          });
+          if (!userData.wrongQuestions.some(item => item.id === q.id)) {
+            userData.wrongQuestions.push(q);
+          }
+        }
       });
+
+      saveUserData();
+
+      const finalPercentage = Math.round((correctCount / curQuestions.length) * 100);
+
+      document.getElementById('quizScreen').style.display = 'none';
+      document.getElementById('resultScreen').style.display = 'block';
+      document.getElementById('resultTitle').innerText = finalPercentage >= 60 ? '恭喜及格！🎉 國考過關！' : '及格邊緣！加油繼續攻克！💪';
+      document.getElementById('resultSubtitle').innerText = `作答用時：${Math.floor((3600 - timeLeft)/60)} 分 ${(3600 - timeLeft)%60} 秒 | 及格門檻為 60 分`;
+      document.getElementById('finalScore').innerText = `${finalPercentage} 分`;
+      document.getElementById('scoreSummary').innerText = `答對 ${correctCount} 題 / 答錯 ${curQuestions.length - correctCount} 題 (共 ${curQuestions.length} 題)`;
+
+      const reviewBox = document.getElementById('examReviewContainer');
+      const reviewList = document.getElementById('examReviewList');
+
+      if (wrongList.length === 0) {
+        reviewBox.style.display = 'none';
+      } else {
+        reviewBox.style.display = 'block';
+        reviewList.innerHTML = wrongList.map(item => `
+          <div class="wrong-item">
+            <div class="wrong-q">第 ${item.qIndex} 題：${item.question.q}</div>
+            <div style="font-size:0.85rem; color:#f87171; margin-bottom:4px;">妳的回答：${item.chosen}</div>
+            <div class="wrong-ans">標準答案：${item.question.ans.join(' 或 ')}</div>
+            <div class="wrong-exp">💡 考點盲點解析：${item.question.explain || item.question.note || '熟記考題觀念即可突破！'}</div>
+          </div>
+        `).join('');
+      }
     }
 
     function checkAnswer(chosen, btnEl) {
@@ -508,12 +893,7 @@
         });
       }
 
-      let expText = "";
-      if (q.explain) {
-        expText = q.explain;
-      } else {
-        expText = `本題標準正解為【${q.ans.join(' 或 ')}】。請特別注意題目敘述之關鍵陷阱與光學幾何定義。`;
-      }
+      let expText = q.explain ? q.explain : `本題標準正解為【${q.ans.join(' 或 ')}】。請特別注意題目敘述之關鍵陷阱與光學幾何定義。`;
       explainContent.innerHTML = expText;
       explainSec.style.display = 'block';
 
@@ -532,14 +912,15 @@
     }
 
     function endQuiz() {
-      clearInterval(timer);
       document.getElementById('quizScreen').style.display = 'none';
       document.getElementById('resultScreen').style.display = 'block';
+      document.getElementById('examReviewContainer').style.display = 'none';
       document.getElementById('finalScore').innerText = `${score} 分`;
       document.getElementById('scoreSummary').innerText = isDrillMode ? '特訓完成！已消滅答對錯題！' : `5 題測驗結束！可前往錯題本查看詳細解析與弱點。`;
     }
 
     function returnToMenu() {
+      clearInterval(timer);
       document.getElementById('resultScreen').style.display = 'none';
       document.getElementById('menuScreen').style.display = 'block';
     }
@@ -628,6 +1009,275 @@
       }
     }
 
+    // --- 全局題庫搜尋辭典邏輯 (全新加入！) ---
+    function performGlobalSearch() {
+      const rawKeyword = document.getElementById('globalSearchInput').value.trim();
+      const container = document.getElementById('searchResultsContainer');
+      const statsText = document.getElementById('searchStatsText');
+
+      if (!window.OptoQuestions) {
+        container.innerHTML = '<div style="color:#f87171; padding:20px; text-align:center;">題庫尚未載入成功！</div>';
+        return;
+      }
+
+      if (rawKeyword === '') {
+        statsText.innerText = '請輸入關鍵字開始搜尋';
+        container.innerHTML = '';
+        return;
+      }
+
+      const kw = rawKeyword.toLowerCase();
+      let matched = [];
+
+      // 遍歷所有考科抽屜
+      for (const [key, qList] of Object.entries(window.OptoQuestions)) {
+        if (!Array.isArray(qList)) continue;
+
+        // 解析 key 標籤
+        const parts = key.split('_');
+        const year = parts[0] || '';
+        const levelName = parts[1] === 'senior' ? '高考' : '普考';
+        const subId = parts.slice(2).join('_');
+
+        let subName = subId;
+        const subObj = [...subjectConfigs.senior, ...subjectConfigs.junior].find(s => s.id === subId);
+        if (subObj) subName = subObj.name;
+
+        qList.forEach(q => {
+          const inQ = (q.q || '').toLowerCase().includes(kw);
+          const inOpts = (q.opts || []).some(o => o.toLowerCase().includes(kw));
+          const inExp = (q.explain || '').toLowerCase().includes(kw);
+          const inNote = (q.note || '').toLowerCase().includes(kw);
+
+          if (inQ || inOpts || inExp || inNote) {
+            matched.push({
+              meta: `${year}年 ${levelName}・${subName}`,
+              q: q
+            });
+          }
+        });
+      }
+
+      statsText.innerHTML = `共檢索出 <span style="color:#10b981; font-weight:800; font-size:1.1rem;">${matched.length}</span> 筆相關試題：`;
+
+      if (matched.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:40px 10px; color:var(--text-muted);">
+            <div style="font-size:2rem; margin-bottom:6px;">🔎</div>
+            <div>查無符合「${escapeHtml(rawKeyword)}」的試題，請嘗試其他關鍵字！</div>
+          </div>
+        `;
+        return;
+      }
+
+      // 高亮關鍵字輔助函式
+      const reg = new RegExp(`(${escapeRegExp(rawKeyword)})`, 'gi');
+      const highlight = text => (text || '').replace(reg, '<span class="search-highlight">$1</span>');
+
+      container.innerHTML = matched.slice(0, 50).map(item => `
+        <div class="wrong-item" style="border-left: 3px solid #10b981;">
+          <span class="search-meta-tag">${item.meta}</span>
+          <div class="wrong-q" style="margin-top:4px;">${highlight(item.q.q)}</div>
+          <div style="margin: 8px 0; font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+            ${item.q.opts.map((opt, i) => {
+              const letter = ['A','B','C','D'][i];
+              const isAns = item.q.ans.includes(letter);
+              return `<div style="${isAns ? 'color:#34d399; font-weight:700;' : 'color:var(--text-muted);'}">
+                ${letter}. ${highlight(opt)}${isAns ? '✓ (標準正解)' : ''}
+              </div>`;
+            }).join('')}
+          </div>
+          <div class="wrong-exp">💡 考點解析：${highlight(item.q.explain || item.q.note || '熟記考題定義與觀念即可攻克！')}</div>
+        </div>
+      `).join('') + (matched.length > 50 ? `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:10px;">(僅顯示前 50 筆結果，請精準輸入關鍵字)</div>` : '');
+    }
+
+    function quickFillSearch(term) {
+      const input = document.getElementById('globalSearchInput');
+      input.value = term;
+      performGlobalSearch();
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[s]));
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // --- 光學小算盤相關邏輯 (含逐步公式詳解) ---
+    function openOptoCalc() {
+      document.getElementById('optoCalcModal').style.display = 'flex';
+    }
+
+    function closeOptoCalc() {
+      document.getElementById('optoCalcModal').style.display = 'none';
+    }
+
+    function switchCalcTab(tabId, btn) {
+      document.querySelectorAll('.calc-panel').forEach(p => p.style.display = 'none');
+      document.querySelectorAll('.calc-tab').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).style.display = 'block';
+      btn.classList.add('active');
+    }
+
+    // 0. 透鏡組合與焦距換算
+    function calcCombo() {
+      const f1 = parseFloat(document.getElementById('combo_f1').value);
+      let f2 = parseFloat(document.getElementById('combo_f2').value);
+      if (isNaN(f2)) f2 = 0;
+      const res = document.getElementById('combo_result');
+
+      if (isNaN(f1)) {
+        res.style.display = 'block';
+        res.innerHTML = '<span style="color:#f87171;">⚠️ 請至少輸入第一透鏡度數 F1！</span>';
+        return;
+      }
+
+      const totalF = f1 + f2;
+      let focal_m = totalF !== 0 ? (1 / totalF) : Infinity;
+      let focal_cm = totalF !== 0 ? (focal_m * 100) : Infinity;
+
+      let resultHtml = `
+        <div>組合總屈光力：<span class="calc-result-val">${totalF > 0 ? '+' : ''}${totalF.toFixed(2)} D</span></div>
+      `;
+
+      if (totalF === 0) {
+        resultHtml += `<div>組合總焦距：<span class="calc-result-val">&infin; (平行光無焦點/平光)</span></div>`;
+      } else {
+        resultHtml += `
+          <div>組合總焦距：<span class="calc-result-val">${focal_cm > 0 ? '+' : ''}${focal_cm.toFixed(1)} cm</span> (${focal_m > 0 ? '+' : ''}${focal_m.toFixed(3)} m)</div>
+        `;
+      }
+
+      resultHtml += `
+        <div class="calc-step">
+          <strong>【公式與計算步驟】</strong><br>
+          步驟 1（屈光力疊加）：F_總 = F1 + F2 = (${f1 > 0 ? '+' : ''}${f1}) + (${f2 > 0 ? '+' : ''}${f2}) = <strong>${totalF > 0 ? '+' : ''}${totalF.toFixed(2)} D</strong><br>
+          步驟 2（焦距換算）：f = 1 / F_總 = 1 / (${totalF}) = <strong>${focal_m.toFixed(3)} 公尺 (m)</strong><br>
+          步驟 3（公尺轉公分）：f(cm) = ${focal_m.toFixed(3)} &times; 100 = <strong>${focal_cm > 0 ? '+' : ''}${focal_cm.toFixed(1)} 公分 (cm)</strong>
+        </div>
+      `;
+      res.style.display = 'block';
+      res.innerHTML = resultHtml;
+    }
+
+    // 1. 頂點距離 (VD) 換算
+    function calcVD() {
+      const F = parseFloat(document.getElementById('vd_power').value);
+      const d_mm = parseFloat(document.getElementById('vd_dist').value);
+      const res = document.getElementById('vd_result');
+      if (isNaN(F) || isNaN(d_mm)) {
+        res.style.display = 'block';
+        res.innerHTML = '<span style="color:#f87171;">⚠️ 請輸入完整的眼鏡度數與 VD 數值！</span>';
+        return;
+      }
+      const d_m = d_mm / 1000;
+      const denom = 1 - (d_m * F);
+      const Fc = F / denom;
+      const rounded = Math.round(Fc * 4) / 4;
+
+      res.style.display = 'block';
+      res.innerHTML = `
+        <div>理論精確度數：<span style="color:#38bdf8;">${Fc > 0 ? '+' : ''}${Fc.toFixed(2)} D</span></div>
+        <div style="margin-top:2px;">建議配鏡階梯：<span class="calc-result-val">${rounded > 0 ? '+' : ''}${rounded.toFixed(2)} D</span></div>
+        <div class="calc-step">
+          <strong>【公式與計算步驟】</strong><br>
+          套用公式：Fc = F / (1 - d &times; F)<br>
+          1. 距離換算：d = ${d_mm} mm = <strong>${d_m} m</strong><br>
+          2. 分母計算：1 - (${d_m} &times; ${F}) = 1 - (${(d_m * F).toFixed(4)}) = <strong>${denom.toFixed(4)}</strong><br>
+          3. 屈光度相除：${F} / ${denom.toFixed(4)} = <strong>${Fc.toFixed(3)} D</strong> (取 0.25D 階梯為 ${rounded.toFixed(2)}D)
+        </div>
+      `;
+    }
+
+    // 2. Prentice 稜鏡計算
+    function calcPrentice() {
+      const F = parseFloat(document.getElementById('pr_power').value);
+      const c_mm = parseFloat(document.getElementById('pr_decent').value);
+      const res = document.getElementById('pr_result');
+      if (isNaN(F) || isNaN(c_mm)) {
+        res.style.display = 'block';
+        res.innerHTML = '<span style="color:#f87171;">⚠️ 請輸入屈光度與偏心量！</span>';
+        return;
+      }
+      const c_cm = Math.abs(c_mm) / 10;
+      const P = c_cm * Math.abs(F);
+      const hint = F > 0 ? "正透鏡 (基底朝向光心偏移方向)" : "負透鏡 (基底朝向偏心反方向，即朝向原周邊)";
+
+      res.style.display = 'block';
+      res.innerHTML = `
+        <div>誘發稜鏡量：<span class="calc-result-val">${P.toFixed(2)} &Delta;</span></div>
+        <div style="font-size:0.8rem; color:#fbbf24; margin-top:2px;">💡 基底方向判斷：${hint}</div>
+        <div class="calc-step">
+          <strong>【公式與計算步驟】</strong><br>
+          套用公式：P(&Delta;) = c(cm) &times; |F|(D)<br>
+          1. 毫米轉公分：c = ${Math.abs(c_mm)} mm = <strong>${c_cm} cm</strong><br>
+          2. 代入 Prentice 公式：${c_cm} cm &times; ${Math.abs(F)} D = <strong>${P.toFixed(2)} &Delta;</strong>
+        </div>
+      `;
+    }
+
+    // 3. 正負柱鏡轉換
+    function calcCylForm() {
+      const sph = parseFloat(document.getElementById('cyl_sph').value);
+      const cyl = parseFloat(document.getElementById('cyl_cyl').value);
+      let axis = parseInt(document.getElementById('cyl_axis').value);
+      const res = document.getElementById('cyl_result');
+      if (isNaN(sph) || isNaN(cyl) || isNaN(axis)) {
+        res.style.display = 'block';
+        res.innerHTML = '<span style="color:#f87171;">⚠️ 請完整填入球鏡、柱鏡與軸度！</span>';
+        return;
+      }
+      const newSph = sph + cyl;
+      const newCyl = -cyl;
+      let newAxis = axis > 90 ? axis - 90 : axis + 90;
+      const formattedAxis = newAxis.toString().padStart(3, '0');
+
+      res.style.display = 'block';
+      res.innerHTML = `
+        <div style="color:var(--text-muted); font-size:0.82rem;">轉換後處方：</div>
+        <div class="calc-result-val" style="margin-top:2px;">
+          ${newSph > 0 ? '+' : ''}${newSph.toFixed(2)}DS / 
+          ${newCyl > 0 ? '+' : ''}${newCyl.toFixed(2)}DC &times; ${formattedAxis}&deg;
+        </div>
+        <div class="calc-step">
+          <strong>【轉換三步驟解析】</strong><br>
+          步驟 1（新球鏡）：原球 + 原柱 = (${sph > 0 ? '+' : ''}${sph}) + (${cyl > 0 ? '+' : ''}${cyl}) = <strong>${newSph > 0 ? '+' : ''}${newSph.toFixed(2)}DS</strong><br>
+          步驟 2（新柱鏡）：柱鏡正負符號相反 = <strong>${newCyl > 0 ? '+' : ''}${newCyl.toFixed(2)}DC</strong><br>
+          步驟 3（新軸度）：原軸度正交轉 90&deg; = ${axis}&deg; ${axis > 90 ? '- 90&deg;' : '+ 90&deg;'} = <strong>${formattedAxis}&deg;</strong>
+        </div>
+      `;
+    }
+
+    // 4. 等效球面 (SE)
+    function calcSE() {
+      const sph = parseFloat(document.getElementById('se_sph').value);
+      const cyl = parseFloat(document.getElementById('se_cyl').value);
+      const res = document.getElementById('se_result');
+      if (isNaN(sph) || isNaN(cyl)) {
+        res.style.display = 'block';
+        res.innerHTML = '<span style="color:#f87171;">⚠️ 請輸入球面度數與散光度數！</span>';
+        return;
+      }
+      const halfCyl = cyl / 2;
+      const se = sph + halfCyl;
+
+      res.style.display = 'block';
+      res.innerHTML = `
+        <div>等效球面度 (SE)：<span class="calc-result-val">${se > 0 ? '+' : ''}${se.toFixed(2)} D</span></div>
+        <div class="calc-step">
+          <strong>【公式與計算步驟】</strong><br>
+          套用公式：SE = Sph + (Cyl / 2)<br>
+          1. 散光度數減半：${cyl} / 2 = <strong>${halfCyl > 0 ? '+' : ''}${halfCyl.toFixed(2)} D</strong><br>
+          2. 加至球面度：${sph} + (${halfCyl > 0 ? '+' : ''}${halfCyl.toFixed(2)}) = <strong>${se > 0 ? '+' : ''}${se.toFixed(2)} D</strong>
+        </div>
+      `;
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       renderSubjectOptions();
       updateProfileUI();
@@ -635,7 +1285,7 @@
 
       const infoEl = document.getElementById('loadedQuestionInfo');
       if (window.OptoQuestions) {
-        infoEl.innerText = "✅ 外部題庫抽屜連線成功！每次隨機抽測 5 題。";
+        infoEl.innerText = "✅ 外部題庫抽屜連線成功！支援 5 題速測與 50 題全真計時模擬。";
         infoEl.style.color = "#34d399";
       } else {
         infoEl.innerText = "⚠️ 尚未讀取到 questions.js，請將題庫檔案放在同資料夾。";
